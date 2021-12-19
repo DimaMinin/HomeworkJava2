@@ -19,7 +19,7 @@ public class Treadmill implements Obstacle{
 
     @Override
     public boolean compare(Member member) {
-        if (member.getMaxJump() > this.distance) {
+        if (member.getMaxRun() > this.distance) {
             return true;
         } else {
             return false;
