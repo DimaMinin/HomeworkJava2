@@ -2,6 +2,7 @@ package com.Minin.server.chat.auth;
 
 import java.util.Set;
 
+
 public class AuthService {
 
     private static final Set<User> USERS = Set.of(

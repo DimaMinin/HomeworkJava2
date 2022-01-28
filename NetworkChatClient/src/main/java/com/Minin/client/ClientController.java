@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.function.Consumer;
 
+
 public class ClientController {
 
     @FXML private TextArea textArea;

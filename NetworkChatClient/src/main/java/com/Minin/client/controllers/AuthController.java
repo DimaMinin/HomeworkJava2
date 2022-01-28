@@ -1,5 +1,6 @@
 package com.Minin.client.controllers;
 
+
 import com.Minin.client.ClientApplication;
 import com.Minin.client.Network;
 import javafx.application.Platform;

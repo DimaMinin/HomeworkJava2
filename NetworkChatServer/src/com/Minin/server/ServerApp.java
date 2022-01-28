@@ -1,5 +1,6 @@
 package com.Minin.server;
 
+
 import com.Minin.server.chat.MyServer;
 
 public class ServerApp {

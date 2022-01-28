@@ -2,6 +2,7 @@ package com.Minin.server.chat.auth;
 
 import java.util.Objects;
 
+
 public class User {
 
     private final String login;
