@@ -1,37 +1,39 @@
 package com.Minin.server.chat;
 
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import com.Minin.clientserver.Command;
+import com.Minin.clientserver.CommandType;
+import com.Minin.clientserver.commands.AuthCommandData;
+import com.Minin.clientserver.commands.PrivateMessageCommandData;
+import com.Minin.clientserver.commands.PublicMessageCommandData;
+
+import java.io.*;
 import java.net.Socket;
 
 public class ClientHandler {
 
-    public static final String AUTH_OK = "/authOk";
-    public static final String AUTH_COMMAND = "/auth";
-
-    private MyServer server;
+    private final MyServer server;
     private final Socket clientSocket;
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    private String userName;
 
-    public ClientHandler(MyServer myServer, Socket clientSocket) {
-        this.server = myServer;
+    public ClientHandler(MyServer server, Socket clientSocket) {
+        this.server = server;
         this.clientSocket = clientSocket;
     }
 
     public void handle() throws IOException {
-        inputStream = new DataInputStream(clientSocket.getInputStream());
-        outputStream = new DataOutputStream(clientSocket.getOutputStream());
+        inputStream = new ObjectInputStream(clientSocket.getInputStream());
+        outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 
         new Thread(() -> {
             try {
                 authenticate();
                 readMessages();
             } catch (IOException e) {
-                System.err.println("Failed to process message from client ");
-//                e.printStackTrace();
+                System.err.println("Failed to process message from client");
+                e.printStackTrace();
             } finally {
                 try {
                     closeConnection();
@@ -40,22 +42,28 @@ public class ClientHandler {
                 }
             }
         }).start();
+
     }
 
     private void authenticate() throws IOException {
         while (true) {
-            String message = inputStream.readUTF();
-            if (message.startsWith(AUTH_COMMAND)) {
-                String[] parts = message.split(" ");
-                String login = parts[1];
-                String password = parts[2];
+            Command command = readCommand();
+            if (command == null) {
+                continue;
+            }
 
+            if (command.getType() == CommandType.AUTH) {
+                AuthCommandData data = (AuthCommandData) command.getData();
+                String login = data.getLogin();
+                String password = data.getPassword();
                 String userName = server.getAuthService().getUserNameByLoginAndPassword(login, password);
-
                 if (userName == null) {
-                    sendMessage("Некорректный логин и пароль");
+                    sendCommand(Command.errorCommand("Некорректные логин и пароль"));
+                } else if (server.isUsernameBusy(userName)) {
+                    sendCommand(Command.errorCommand("Такой пользователь уже существует!"));
                 } else {
-                    sendMessage(String.format("%s %s", AUTH_OK, userName));
+                    this.userName = userName;
+                    sendCommand(Command.authOkCommand(userName));
                     server.subscribe(this);
                     return;
                 }
@@ -63,14 +71,44 @@ public class ClientHandler {
         }
     }
 
+    private Command readCommand() throws IOException {
+        Command command = null;
+        try {
+            command = (Command) inputStream.readObject();
+        } catch (ClassNotFoundException e) {
+            System.err.println("Failed to read Command class");
+//            e.printStackTrace();
+        }
+
+        return command;
+    }
+
+    private void closeConnection() throws IOException {
+        server.unsubscribe(this);
+        clientSocket.close();
+    }
+
     private void readMessages() throws IOException {
         while (true) {
-            String message = inputStream.readUTF().trim();
-            System.out.println("message = " + message);
-            if (message.startsWith("/end")) {
-                return;
-            } else {
-                processMessage(message);
+            Command command = readCommand();
+            if (command == null) {
+                continue;
+            }
+
+            switch (command.getType()) {
+                case END:
+                    return;
+                case PRIVATE_MESSAGE: {
+                    PrivateMessageCommandData data = (PrivateMessageCommandData) command.getData();
+                    String recipient = data.getReceiver();
+                    String privateMessage = data.getMessage();
+                    server.sendPrivateMessage(this, recipient, privateMessage);
+                    break;
+                }
+                case PUBLIC_MESSAGE: {
+                    PublicMessageCommandData data = (PublicMessageCommandData) command.getData();
+                    processMessage(data.getMessage());
+                }
             }
         }
     }
@@ -79,12 +117,11 @@ public class ClientHandler {
         this.server.broadcastMessage(message, this);
     }
 
-    public void sendMessage(String message) throws IOException {
-        this.outputStream.writeUTF(message);
+    public void sendCommand(Command command) throws IOException {
+        outputStream.writeObject(command);
     }
 
-    private void closeConnection() throws IOException {
-        server.unsubscribe(this);
-        clientSocket.close();
+    public String getUserName() {
+        return userName;
     }
 }
