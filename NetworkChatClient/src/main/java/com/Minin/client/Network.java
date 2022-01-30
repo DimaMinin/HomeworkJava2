@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.function.Consumer;
 
+
 public class Network {
 
     public static final String SERVER_HOST = "localhost";

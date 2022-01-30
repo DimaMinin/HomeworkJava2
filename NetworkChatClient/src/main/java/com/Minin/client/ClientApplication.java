@@ -1,5 +1,6 @@
 package com.Minin.client;
 
+
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
