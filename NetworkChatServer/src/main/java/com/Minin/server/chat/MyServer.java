@@ -3,6 +3,8 @@ package com.Minin.server.chat;
 
 import com.Minin.clientserver.Command;
 import com.Minin.server.chat.auth.AuthService;
+import com.Minin.server.chat.auth.IAuthService;
+import com.Minin.server.chat.auth.PersistentDbAuthService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,16 +15,17 @@ import java.util.List;
 public class MyServer {
 
     private final List<ClientHandler> clients = new ArrayList<>();
-    private AuthService authService;
+    private IAuthService authService;
 
-    public AuthService getAuthService() {
+    public IAuthService getAuthService() {
         return authService;
     }
 
     public void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server has been started");
-            authService = new AuthService();
+            authService = createAuthService();
+            authService.start();
             while (true) {
                 waitAndProcessClientConnection(serverSocket);
             }
@@ -30,7 +33,16 @@ public class MyServer {
         } catch (IOException e) {
             System.err.println("Failed to bind port " + port);
             e.printStackTrace();
+        } finally {
+            if (authService != null) {
+                authService.stop();
+            }
         }
+    }
+
+    private IAuthService createAuthService() {
+//        return new AuthService();
+        return new PersistentDbAuthService();
     }
 
     private void waitAndProcessClientConnection(ServerSocket serverSocket) throws IOException {
@@ -78,7 +90,7 @@ public class MyServer {
         notifyClientUserListUpdated();
     }
 
-    private void notifyClientUserListUpdated() throws IOException {
+    public void notifyClientUserListUpdated() throws IOException {
         List<String> userListOnline = new ArrayList<>();
 
         for (ClientHandler client : clients) {

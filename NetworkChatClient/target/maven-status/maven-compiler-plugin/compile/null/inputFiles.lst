@@ -1,4 +1,6 @@
-D:\Program files\HomeworkJava2\NetworkChatClient\src\main\java\com\Minin\client\ClientController.java
-D:\Program files\HomeworkJava2\NetworkChatClient\src\main\java\com\Minin\client\ClientApplication.java
-D:\Program files\HomeworkJava2\NetworkChatClient\src\main\java\com\Minin\client\controllers\AuthController.java
-D:\Program files\HomeworkJava2\NetworkChatClient\src\main\java\com\Minin\client\Network.java
+D:\Program files\HomeworkJava.Minin.2\NetworkChatClient\src\main\java\com\Minin\client\controllers\AuthController.java
+D:\Program files\HomeworkJava.Minin.2\NetworkChatClient\src\main\java\com\Minin\client\dialogs\Dialogs.java
+D:\Program files\HomeworkJava.Minin.2\NetworkChatClient\src\main\java\com\Minin\client\controllers\ClientController.java
+D:\Program files\HomeworkJava.Minin.2\NetworkChatClient\src\main\java\com\Minin\client\model\Network.java
+D:\Program files\HomeworkJava.Minin.2\NetworkChatClient\src\main\java\com\Minin\client\model\ReadCommandListener.java
+D:\Program files\HomeworkJava.Minin.2\NetworkChatClient\src\main\java\com\Minin\client\ClientChat.java

@@ -7,7 +7,7 @@ public class User {
 
     private final String login;
     private final String password;
-    private final String userName;
+    private String userName;
 
     public User(String login, String password, String userName) {
         this.login = login;
@@ -29,6 +29,10 @@ public class User {
 
     public String getUserName() {
         return userName;
+    }
+
+    public void setUsername(String userName) {
+        this.userName = userName;
     }
 
     @Override
