@@ -6,6 +6,9 @@ import java.io.*;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 
@@ -23,7 +26,8 @@ public class Network {
     private ObjectOutputStream socketOutput;
 
     private final List<ReadCommandListener> listeners = new CopyOnWriteArrayList<>();
-    private Thread readMessageProcess;
+//    private Thread readMessageProcess;
+    private ExecutorService executorService;
     private boolean connected;
     private String currentUsername;
 
@@ -38,6 +42,7 @@ public class Network {
     private Network(String host, int port) {
         this.host = host;
         this.port = port;
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     private Network() {
@@ -49,7 +54,8 @@ public class Network {
             socket = new Socket(host, port);
             socketOutput = new ObjectOutputStream(socket.getOutputStream());
             socketInput = new ObjectInputStream(socket.getInputStream());
-            readMessageProcess = startReadMessageProcess();
+//            readMessageProcess = startReadMessageProcess();
+            startReadMessageProcess();
             connected = true;
             return true;
         } catch (IOException e) {
@@ -81,8 +87,8 @@ public class Network {
         sendCommand(Command.privateMessageCommand(recipient, message));
     }
 
-    public Thread startReadMessageProcess() {
-        Thread thread = new Thread(() -> {
+    public void startReadMessageProcess() {
+        executorService.execute(() ->{
             while (true) {
                 try {
                     if (Thread.currentThread().isInterrupted()) {
@@ -102,9 +108,9 @@ public class Network {
                 }
             }
         });
-        thread.setDaemon(true);
-        thread.start();
-        return thread;
+//        thread.setDaemon(true);
+//        thread.start();
+//        return thread;
     }
 
     private Command readCommand() throws IOException {
@@ -131,7 +137,8 @@ public class Network {
     public void close() {
         try {
             connected = false;
-            readMessageProcess.interrupt();
+//            readMessageProcess.interrupt();
+            executorService.shutdownNow();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
