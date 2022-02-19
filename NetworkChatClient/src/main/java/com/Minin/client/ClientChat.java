@@ -9,11 +9,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import com.Minin.client.controllers.AuthController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
@@ -27,6 +28,8 @@ public class ClientChat extends Application {
     private Stage authStage;
     private FXMLLoader chatWindowLoader;
     private FXMLLoader authLoader;
+
+    private static final Logger LOGGER = LogManager.getLogger(ClientChat.class);
 
     @Override
     public void init() throws Exception {
@@ -54,6 +57,14 @@ public class ClientChat extends Application {
 
         Parent root = chatWindowLoader.load();
         this.primaryStage.setScene(new Scene(root));
+
+        this.primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                Network.getInstance().close();
+            }
+        });
+
     }
 
     private void initAuthDialog() throws java.io.IOException {
@@ -65,27 +76,6 @@ public class ClientChat extends Application {
         authStage.initOwner(primaryStage);
         authStage.initModality(Modality.WINDOW_MODAL);
         authStage.setScene(new Scene(authDialogPanel));
-    }
-
-    private void connectToServer(ClientController clientController) {
-        boolean result = Network.getInstance().connect();
-
-        if (!result) {
-            String errorMessage = CONNECTION_ERROR_MESSAGE;
-            System.err.println(errorMessage);
-            showErrorDialog(errorMessage);
-            return;
-        }
-
-
-        clientController.setApplication(this);
-
-        this.primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent windowEvent) {
-                Network.getInstance().close();
-            }
-        });
     }
 
     public void switchToMainChatWindow(String username) {
