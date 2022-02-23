@@ -21,13 +21,13 @@ public class AuthService implements IAuthService {
         return null;
     }
 
-    @Override
-    public void updateUsername(String currentUsername, String newUsername) {
-        User user = getUserByUsername(currentUsername);
-        if (user != null) {
-            user.setUsername(newUsername);
-        }
-    }
+//    @Override
+//    public void updateUsername(String currentUsername, String newUsername) {
+//        User user = getUserByUsername(currentUsername);
+//        if (user != null) {
+//            user.setUsername(newUsername);
+//        }
+//    }
 
     private User getUserByUsername(String username) {
         for (User user : USERS) {

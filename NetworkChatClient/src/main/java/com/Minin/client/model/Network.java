@@ -1,6 +1,8 @@
 package com.Minin.client.model;
 
 import com.Minin.clientserver.Command;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
@@ -26,10 +28,10 @@ public class Network {
     private ObjectOutputStream socketOutput;
 
     private final List<ReadCommandListener> listeners = new CopyOnWriteArrayList<>();
-//    private Thread readMessageProcess;
     private ExecutorService executorService;
     private boolean connected;
     private String currentUsername;
+    private static final Logger LOGGER = LogManager.getLogger(Network.class);
 
     public static Network getInstance() {
         if (INSTANCE == null) {
@@ -54,13 +56,12 @@ public class Network {
             socket = new Socket(host, port);
             socketOutput = new ObjectOutputStream(socket.getOutputStream());
             socketInput = new ObjectInputStream(socket.getInputStream());
-//            readMessageProcess = startReadMessageProcess();
             startReadMessageProcess();
             connected = true;
             return true;
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Не удалось установить соединение");
+            LOGGER.error("Не удалось установить соединение");
             return false;
         }
     }
@@ -78,7 +79,7 @@ public class Network {
         try {
             socketOutput.writeObject(command);
         } catch (IOException e) {
-            System.err.println("Не удалось отправить сообщение на сервер");
+            LOGGER.error("Не удалось отправить сообщение на сервер");
             throw e;
         }
     }
@@ -102,15 +103,12 @@ public class Network {
                         messageListener.processReceivedCommand(command);
                     }
                 } catch (IOException e) {
-                    System.err.println("Не удалось прочитать сообщения от сервера");
+                    LOGGER.error("Не удалось прочитать сообщения от сервера");
                     close();
                     break;
                 }
             }
         });
-//        thread.setDaemon(true);
-//        thread.start();
-//        return thread;
     }
 
     private Command readCommand() throws IOException {
@@ -118,7 +116,7 @@ public class Network {
         try {
             command = (Command) socketInput.readObject();
         } catch (ClassNotFoundException e) {
-            System.err.println("Failed to read Command class");
+            LOGGER.error("Failed to read Command class");
             e.printStackTrace();
         }
 
@@ -137,7 +135,6 @@ public class Network {
     public void close() {
         try {
             connected = false;
-//            readMessageProcess.interrupt();
             executorService.shutdownNow();
             socket.close();
         } catch (IOException e) {

@@ -6,6 +6,8 @@ import com.Minin.clientserver.CommandType;
 import com.Minin.clientserver.commands.AuthCommandData;
 import com.Minin.clientserver.commands.PrivateMessageCommandData;
 import com.Minin.clientserver.commands.PublicMessageCommandData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
@@ -17,6 +19,7 @@ public class ClientHandler {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private String userName;
+    private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class);
 
     public ClientHandler(MyServer server, Socket clientSocket) {
         this.server = server;
@@ -32,13 +35,13 @@ public class ClientHandler {
                 authenticate();
                 readMessages();
             } catch (IOException e) {
-                System.err.println("Failed to process message from client");
+                LOGGER.error("Failed to process message from client");
                 e.printStackTrace();
             } finally {
                 try {
                     closeConnection();
                 } catch (IOException e) {
-                    System.err.println("Failed to close connection");
+                    LOGGER.error("Failed to close connection");
                 }
             }
         });
@@ -76,8 +79,7 @@ public class ClientHandler {
         try {
             command = (Command) inputStream.readObject();
         } catch (ClassNotFoundException e) {
-            System.err.println("Failed to read Command class");
-//            e.printStackTrace();
+            LOGGER.error("Failed to read Command class");
         }
 
         return command;

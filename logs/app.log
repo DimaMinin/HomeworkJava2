@@ -1,0 +1,6 @@
+2022-02-19 15:05:23.994 [main] INFO  com.Minin.server.chat.MyServer - Server has been started
+2022-02-19 15:05:23.998 [main] INFO  com.Minin.server.chat.auth.PersistentDbAuthService - Creating DB connection...
+2022-02-19 15:05:24.200 [main] INFO  com.Minin.server.chat.auth.PersistentDbAuthService - DB connection is created successfully
+2022-02-19 15:05:24.203 [main] INFO  com.Minin.server.chat.MyServer - Waiting for new client connection
+2022-02-19 15:06:14.044 [main] INFO  com.Minin.server.chat.MyServer - Client has been connected
+2022-02-19 15:06:14.065 [main] INFO  com.Minin.server.chat.MyServer - Waiting for new client connection

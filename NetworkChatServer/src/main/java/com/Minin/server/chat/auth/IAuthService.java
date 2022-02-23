@@ -12,5 +12,5 @@ public interface IAuthService {
 
     }
 
-    void updateUsername(String currentUsername, String newUsername);
+//    void updateUsername(String currentUsername, String newUsername);
 }
